@@ -1,4 +1,15 @@
-from menu import*
+import json
+from pathlib import Path
+
+print(Path.cwd())
+#importing from json
+with open("utils\KababHouse_Menu.json","r") as file:
+    pos_data=json.load(file)
+
+menu=pos_data['menu'] 
+coupoun_codes=pos_data["coupoun_codes"]
+menu_catrgories={int(k):v for k,v in pos_data["menu_categories"].items()}
+
 def Display_menu(category_num):
     chosen=menu[menu_catrgories[category_num]] #fetches dictionary of desired category
     print("  CODE       ITEM \n ________________________________ ")
@@ -69,6 +80,9 @@ class Cart: #cart object
             print(f"{removed["Name"]} REMOVED | CART TOTAL : {self.CalcTotals()[0]}\n")
         except KeyError: #error handling incase user enters code not in cart. 
             pass #errroe messAGE given in main loop
+
+
+        
         
 
 

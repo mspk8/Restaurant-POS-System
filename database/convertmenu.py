@@ -1,16 +1,3 @@
-menu_catrgories={
-    1:"Signature",
-    2:"BBQ",
-    3:"breakfast",
-    4:"Desserts"
-}
-
-# coupoun_codes={
-#     "KHI20":20,
-#     "KABABZ":10,
-#     "KHIONTOP":50
-# }
-
 menu={
     "Signature": {
         "s1": {
@@ -90,4 +77,32 @@ menu={
 
 
 
+menu_catrgories={
+    1:"Signature",
+    2:"BBQ",
+    3:"breakfast",
+    4:"Desserts"
+}
+
+final=[]
+index=1
+keys=[1,2,3,4]
+
+for category in menu:
+        for code in menu[category]:
+            name=menu[category][code]["Name"]
+            price=menu[category][code]["Price"]
+            new=(index,code,name,price)
+            final.append(new)
+        index+=1
+        
+
+
+print(final)
+
+
+
+
+done=[(1, 's1', 'Chicken Tawa', 30.0), (1, 's2', 'Butter Chicken', 32.0), (1, 's3', 'Achari Handi', 28.0), (1, 's4', 'Peshawari Karhai', 36.0), (1, 'q1', 'Seekh Kabab', 30.0), (1, 'q2', 'Reshmi Kabab', 32.0), (1, 'q3', 'Kabab Fry', 24.0), (1, 'q4', 'Bihari Kabab', 45.0), (1, 'b1', 'Halwa Puri Set', 10.0), (1, 'b2', 'Chana', 6.0), 
+(1, 'b3', 'Haleem', 15.0), (1, 'b4', 'Aloo paratha', 4.0), (1, 'd1', 'Kheer', 8.5), (1, 'd2', 'Gulab Jamun (3pcs)', 9.0), (1, 'd3', 'Gajar Ka Halwa', 15.0), (1, 'd4', 'Ras Malai', 10.0)]
 

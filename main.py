@@ -1,7 +1,9 @@
-from menu import*
-from functions import*
+from run_salesfuncs import*
+from database.db_connect import connect_db
 
 
+coupoun_codes=load_coupouns()
+menu_categories=load_menu_categories()
 print("|| WELCOME TO KARACHI KABAB HOUSE || \n    __________________________ \n ")
 user_name=input("Please Enter Your Name: ")
 
@@ -122,6 +124,7 @@ NET AFTER DISCOUNT    {net_total}
 VAT (5%)    {0.05*net_total:.2f}
 GRAND TOTAL    {net_afterVAT:.2f}
 Payment Method: Cash
+~ All prices are exlusive of VAT
 Thank You for Shopping with Us !
 """)
                         exit_status=True 

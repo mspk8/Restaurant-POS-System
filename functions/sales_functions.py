@@ -1,14 +1,20 @@
-from menu import*
-def Display_menu(category_num):
-    chosen=menu[menu_catrgories[category_num]] #fetches dictionary of desired category
-    print("  CODE       ITEM \n ________________________________ ")
-    for code in chosen: # every loop is one complete category
-        for __ in chosen: #every loop is one complete item code
-            print(f"   {code}    {chosen[code]["Name"]} ¦ {chosen[code]["Price"]} DHS\n")
-            break
-    chosen_category=menu_catrgories[category_num] #returns name of the category chosen for future use
+from database.db_connect import connect_db
+
+
+
+
+def Display_menu(code):
+    conn=connect_db()
+    cursor=conn.cursor()
+    cursor.execute("SELECT* FROM menu_db WHERE cat_code=?",(code,))
+    items=cursor.fetchall()
+    print("  CODE       ITEM          Price \n ________________________________ ")
+    for item in items:
+        row=print(f"  {item["code"]}      {item["name"]}      {item["price"]}")
+    print("\n~ All prices are exlusive of VAT")
+    cursor.execute("SELECT cat_name FROM MENU_CATEGORIES_DB WHERE cat_code=?",(code,))
+    chosen_category=cursor.fetchone()["cat_name"]
     return chosen_category
-    
 
 def choice_menu_loop():
     text=f"""Please select the number to explore our menu: \n
@@ -34,13 +40,14 @@ class Cart: #cart object
 
 
     def add_items_tocart(self,code):
-        for item_and_price in menu: #loops through dict of categories
-                cat_menu=menu[item_and_price] #loops through dict of item code dicts in current category loop
-                if code in cat_menu: #else is handled in main loop
-                    item_name=cat_menu[code]["Name"]
-                    item_price=cat_menu[code]["Price"] 
-                    self.cart_items.update({code:{"Name":item_name,"Price":item_price}}) #name and price fetched from item code dict and updated in cart
-                    print(f"\n {item_name} ADDED | CART TOTAL :{self.CalcTotals()[0]} \n ") 
+        conn=connect_db()
+        cursor=conn.cursor()
+        cursor.execute("SELECT name,price FROM menu_db WHERE code=?",(code,))
+        item=cursor.fetchone()
+        item_name,item_price=item
+        if item_name:
+            self.cart_items.update({code:{"Name":item_name,"Price":item_price}}) #name and price fetched from item code dict and updated in cart
+            print(f"\n {item_name} ADDED | CART TOTAL :{self.CalcTotals()[0]} \n ") 
 
 
                         

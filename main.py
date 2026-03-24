@@ -1,9 +1,7 @@
-from run_salesfuncs import*
-from database.db_connect import connect_db
+from functions.sales_functions import*
 
 
 coupoun_codes=load_coupouns()
-menu_categories=load_menu_categories()
 print("|| WELCOME TO KARACHI KABAB HOUSE || \n    __________________________ \n ")
 user_name=input("Please Enter Your Name: ")
 
@@ -48,7 +46,7 @@ while not exit_status:
 
             print(" | Enter Item Code to add item to cart \n | Enter 'M' to return to previous menu \n | Enter 'Exit' to cancel your order \n")
             item_choice=input("Enter >>> ")
-            deciding_item_menu=menu[chosen_cat].keys() #fetches dictionary of desired menu
+            deciding_item_menu=category_menu_codes(str(choice))#fetches dictionary of desired menu
             if item_choice.lower()=="m":
                   leave_category_menu=True 
                   break #exits category menu and is not looped again due to positive flag

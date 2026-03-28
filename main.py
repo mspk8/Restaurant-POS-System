@@ -77,57 +77,22 @@ while not exit_status:
                         break
                   elif cart_choice.lower()=='done':
                         checkout_status=True  # flag to initiate checkout
-                        
-                  #item removal
-                  elif cart_choice.lower() not in user_cart.cart_items.keys() and cart_choice.lower()!='done': #error message and handling if user enters item code not in his cart
+
+                  elif cart_choice.lower() in user_cart.cart_items.keys():
                         user_cart.Remove_item(cart_choice.lower())
                         print(user_cart.get_cart_items())
                         print(" | Enter Item code to remove item from Cart\n | Type 'M' to return to Menu \n | Type 'Done' to continue to checkout or 'Exit' to cancel order")
+
+                  else:
                         print(f"Code {cart_choice} not found in Cart")
-
-                        continue #restarts from line 71
-                  else: # if input is in the cart, remove item func called. 
-                        user_cart.Remove_item(cart_choice.lower())
-                        print(user_cart.get_cart_items())
-                        print(" | Enter Item code to remove item from Cart\n | Type 'M' to return to Menu \n | Type 'Done' to continue to checkout or 'Exit' to cancel order")
-           
-
+                        continue
 
 
                   while checkout_status: #begins checkout
-                        coupoun_ask=input("Please enter valid coupoun codes to avail discounts, enter 'N' to skip")
-                        if coupoun_ask.lower()=='n':
-                              cart_total,net_total,net_afterVAT=user_cart.CalcTotals() #calls for calc total function without applying any discount
-                              coupoun_discount=0  # for initializing 
-                        elif coupoun_ask.lower!='n' and coupoun_ask not in coupoun_codes.keys():
-                              print("Invalid Code, Type 'N' to skip discount or enter a valid code:")
-                              continue #error message and retry if invalid coupoun code
-                        elif coupoun_ask in coupoun_codes.keys():
-                              coupoun_discount=coupoun_codes[coupoun_ask] #fetches discount amount from coupoun_codes dict
-                              print(f"COUPOUN CODE '{coupoun_ask}' APPLIED | {coupoun_discount}% DISCOUNT !! ")
-                              cart_total,net_total,net_afterVAT=user_cart.CalcTotals(coupoun_discount)
-                              #successful coupoun code application , returns 3 totals
-
-                              #order recipt
-
-
-                        print(f"                                YOUR RECIPT")
-                        print("                            _____________________\n")
-                        user_cart.get_cart_items()
-
-                        print(f"""
-SUBTOTAL :    {cart_total} 
-Discount ({coupoun_discount}%)     -{(coupoun_discount/100)*cart_total}
-NET AFTER DISCOUNT    {net_total}
-VAT (5%)    {0.05*net_total:.2f}
-GRAND TOTAL    {net_afterVAT:.2f}
-Payment Method: Cash
-~ All prices are exlusive of VAT
-Thank You for Shopping with Us !
-""")
+                        user_cart.checkout()
                         exit_status=True 
-                        cart_actions=False # turns active flags to opposite to finish session. 
-                        break
+                        cart_actions=False # turns active flags to opposite to finish session.
+                        checkout_status=False
                   break
             break
 

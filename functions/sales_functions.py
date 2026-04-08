@@ -1,31 +1,36 @@
 from database.db_connect import connect_db
-conn=connect_db()
-cursor=conn.cursor()
 
-def load_coupouns():
-    coupoun_codes={}
-    coupouns=cursor.execute("SELECT* FROM coupoun_codes_DB")
-    c=coupouns.fetchall()
+def load_coupons():
+    coupon_codes={}
+    conn,cursor=connect_db()
+    coupons=cursor.execute("SELECT* FROM coupon_codes_DB")
+    c=coupons.fetchall()
+    conn.close()
     for x in c:
-        coupoun_codes.update({x["code"]:x["discount"]})
-    return coupoun_codes
+        coupon_codes.update({x["code"]:x["discount"]})
+    return coupon_codes
 
 def load_menu_categories():
+    conn,cursor=connect_db()
     menu_categories={}
     categories=cursor.execute("SELECT* FROM MENU_CATEGORIES_DB")
     c=categories.fetchall()
+    conn.close()
     for x in c:
         menu_categories.update({x["cat_code"]:x["cat_name"]})
     return menu_categories
 
 
 def category_menu_codes(code):
+    conn,cursor=connect_db()
     items=cursor.execute("SELECT code FROM menu_db WHERE cat_code=?",(code,))
-    return [item["code"] for item in items]
+    list=[item["code"] for item in items]
+    return list,conn.close()
 
 
 
 def Display_menu(code):
+    conn,cursor=connect_db()
     cursor.execute("SELECT* FROM menu_db WHERE cat_code=?",(code,))
     items=cursor.fetchall()
     full_menu=[]
@@ -37,6 +42,7 @@ def Display_menu(code):
     print("\n~ All prices are exlusive of VAT")
     cursor.execute("SELECT cat_name FROM MENU_CATEGORIES_DB WHERE cat_code=?",(code,))
     chosen_category=cursor.fetchone()["cat_name"]
+    conn.close()
     return chosen_category,full_menu
 
 def choice_menu_loop():
@@ -56,6 +62,13 @@ def choice_menu_loop():
     return choice #retuns user input to main loop
 
 
+def get_db_data(code):
+    conn,cursor=connect_db()
+    cursor.execute("SELECT name,price FROM menu_db WHERE code=?",(code,))
+    item=cursor.fetchone()
+    conn.close()
+    return item
+
 class Cart: #cart object
     def __init__(self):
         self.cart_items={} #initial variables for every cart 
@@ -63,18 +76,19 @@ class Cart: #cart object
 
 
     def add_items_tocart(self,code):
-        cursor.execute("SELECT name,price FROM menu_db WHERE code=?",(code,))
-        item=cursor.fetchone()
-        item_name,item_price=item
-        if item_name:
-            self.cart_items.update({code:{"Name":item_name,"Price":item_price}}) #name and price fetched from item code dict and updated in cart
-            print(f"\n {item_name} ADDED | CART TOTAL :{self.CalcTotals()[0]} \n ") 
+        item=get_db_data(code)
+        if item:
+            self.cart_items.update({code:{"Name":item["name"],"Price":item["price"]}})
+            print(f"\n {item['name']} ADDED | CART TOTAL :{self.CalcTotals()[0]} \n ")  #name and price fetched from item code dict and updated in cart
+        else:
+            return "ITEM NOT FOUND IN CART"  
 
 
                         
     def get_cart_items(self): #user can view current cart items and total
         for code in self.cart_items: #every loop is one item code in the cart
             item_n_price=self.cart_items[code] #dict of the item code containing name and price
+            print(  "   CODE       NAME              PRICE")
             print(f"   {code}    {item_n_price["Name"]} ¦ {item_n_price["Price"]} DHS\n")
         return f"CART TOTAL {self.CalcTotals()[0]} " #total returned only if called with a variable in main code
 
@@ -99,22 +113,22 @@ class Cart: #cart object
             pass #errroe messAGE given in main loop
         
     def checkout(self):
-        coupoun_codes=load_coupouns()
-        coupoun_discount=0  # for initializing 
+        coupon_codes=load_coupons()
+        coupon_discount=0  # for initializing 
         while True:
-            coupoun_ask=input("Please enter valid coupoun codes to avail discounts, enter 'N' to skip")
-            if coupoun_ask.lower()=='n': #no coupoun
+            coupon_ask=input("Please enter valid coupon codes to avail discounts, enter 'N' to skip")
+            if coupon_ask.lower()=='n': #no coupon
                  break
-            elif coupoun_ask in coupoun_codes.keys(): #valid coupoun
-                coupoun_discount=coupoun_codes[coupoun_ask]
-                print(f"COUPOUN CODE '{coupoun_ask}' APPLIED | {coupoun_discount}% DISCOUNT !! ")
+            elif coupon_ask in coupon_codes.keys(): #valid coupon
+                coupon_discount=coupon_codes[coupon_ask]
+                print(f"coupon CODE '{coupon_ask}' APPLIED | {coupon_discount}% DISCOUNT !! ")
 
             else:
                 print("Invalid Code, Type 'N' to skip discount or enter a valid code:")
                 continue
             break
                  
-        cart_total,net_total,net_afterVAT=self.CalcTotals(coupoun_discount)
+        cart_total,net_total,net_afterVAT=self.CalcTotals(coupon_discount)
 
 
         print(f"                                YOUR RECIPT")
@@ -123,7 +137,7 @@ class Cart: #cart object
 
         print(f"""
 SUBTOTAL :    {cart_total} 
-Discount ({coupoun_discount}%)     -{(coupoun_discount/100)*cart_total}
+Discount ({coupon_discount}%)     -{(coupon_discount/100)*cart_total}
 NET AFTER DISCOUNT    {net_total}
 VAT (5%)    {0.05*net_total:.2f}
 GRAND TOTAL    {net_afterVAT:.2f}

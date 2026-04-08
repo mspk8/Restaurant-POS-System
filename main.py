@@ -1,7 +1,7 @@
 from functions.sales_functions import*
 
 
-coupoun_codes=load_coupouns()
+coupon_codes=load_coupons()
 print("|| WELCOME TO KARACHI KABAB HOUSE || \n    __________________________ \n ")
 user_name=input("Please Enter Your Name: ")
 
@@ -54,11 +54,11 @@ while not exit_status:
                   print(f"Thank You {user_name}")
                   exit_status=True
                   break #exits current loop and nothing is looped again due to positive exit flag
-            elif item_choice.lower() not in deciding_item_menu: 
+            if item_choice.lower() not in deciding_item_menu[0]: 
                   print("Invalid Code, Please Re-enter\n") 
-                  continue #error message and retry for user if user enters item code that is not in the desired menu
+                  continue #error message amnd retry for user if user enters item code that is not in the desired menu
             
-            user_cart.add_items_tocart(item_choice) #reaches here with a valid item code and add item func is called
+            user_cart.add_items_tocart(item_choice.lower()) #reaches here with a valid item code and add item func is called
 
 
       while cart_actions and not exit_status: #begins cart actions loop if exit status is false

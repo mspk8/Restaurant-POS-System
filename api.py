@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI 
 from functions.sales_functions import *
 from pydantic import BaseModel,field_validator
 from typing import Optional
@@ -9,9 +9,9 @@ class OrderItem(BaseModel):
     item_code:str
     quantity:int=1
 
-class CheckoutRequest(BaseModel):
-    coupoun: Optional[str]=''
-    payment_method:str='cash' or 'card'
+class CheckoutRequest(BaseModel):   
+    coupon: Optional[str]=''
+    payment_method:str='cash'
 
     @field_validator("payment_method")
     def payment_method_validator(cls,v):
@@ -33,8 +33,9 @@ def get_menu(category_code: str):
 
 @app.post("/cart/add/{item_code}")
 def add_item(item_code: str):
-    cart.add_items_tocart(item_code)
-    return cart.get_cart_items()
+    item=cart.add_items_tocart(item_code)
+    return item,cart.get_cart_items()
+
 
 @app.delete("/cart/remove/{item_code}")
 def delete_item(item_code:str):
@@ -48,19 +49,19 @@ def view_cart():
 
 @app.post("/cart/checkout")
 def checkout(request:CheckoutRequest):
-    coupoun_codes=load_coupouns()
-    coupoun_discount=0  # for initializing 
-    if request.coupoun and request.coupoun in coupoun_codes.keys():
-        coupoun_discount=coupoun_codes[request.coupoun]
-        message=f"COUPOUN CODE '{request.coupoun}' APPLIED | {coupoun_discount}% DISCOUNT !! "
+    coupon_codes=load_coupons()
+    coupon_discount=0  # for initializing 
+    if request.coupon and request.coupon in coupon_codes.keys():
+        coupon_discount=coupon_codes[request.coupon]
+        message=f"coupon CODE '{request.coupon}' APPLIED | {coupon_discount}% DISCOUNT !! "
 
-    cart_total,net_total,net_afterVAT=cart.CalcTotals(coupoun_discount)
+    cart_total,net_total,net_afterVAT=cart.CalcTotals(coupon_discount)
     print(f"                                YOUR RECIPT")
     print("                            _____________________\n")
     cart.get_cart_items()
     return {
             "SUBTOTAL" : cart_total,
-            "Discount": (coupoun_discount/100)*cart_total,
+            "Discount": (coupon_discount/100)*cart_total,
             "NET FTER DISCOUNT  ":  net_total,
             "VAT"  : round(0.05*net_total,2),
             "GRAND TOTAL"  :  round(net_afterVAT,2),

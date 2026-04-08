@@ -1,7 +1,7 @@
 import sqlite3
 
-connection=sqlite3.connect("KababHouseutills.db")
-cursor=connection.cursor()
+conn=sqlite3.connect("database\KababHouseutills.db")
+cursor=conn.cursor()
 
 menu_categories_db_MAKE="""CREATE TABLE IF NOT EXISTS
 MENU_CATEGORIES_DB(cat_code INTEGER ,
@@ -19,8 +19,6 @@ FOREIGN KEY(cat_code) REFERENCES MENU_CATEGORIES_DB(cat_code))"""
 
 # cursor.execute(menu_categories_db_MAKE)
 # cursor.execute(coupon_codes_db_MAKE)
-cursor.execute(menu_db_MAKE)
-connection.commit()
 
 
-connection.close()
+

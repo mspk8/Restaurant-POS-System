@@ -1,4 +1,5 @@
 from database.db_connect import connect_db
+from exceptions import*
 
 def load_coupons():
     coupon_codes={}
@@ -63,6 +64,7 @@ def choice_menu_loop():
 
 
 def get_db_data(code):
+
     conn,cursor=connect_db()
     cursor.execute("SELECT name,price FROM menu_db WHERE code=?",(code,))
     item=cursor.fetchone()
@@ -77,21 +79,22 @@ class Cart: #cart object
 
     def add_items_tocart(self,code):
         item=get_db_data(code)
-        if item:
-            self.cart_items.update({code:{"Name":item["name"],"Price":item["price"]}})
-            print(f"\n {item['name']} ADDED | CART TOTAL :{self.CalcTotals()[0]} \n ")  #name and price fetched from item code dict and updated in cart
-        else:
-            return "ITEM NOT FOUND IN CART"  
-
+        if not item:
+            raise ItemNotFoundError(code)
+        self.cart_items.update({code:{"Name":item["name"],"Price":item["price"]}})
+        print(f"\n {item['name']} ADDED | CART TOTAL :{self.CalcTotals()[0]} \n ")  #name and price fetched from item code dict and updated in cart
+        return item
 
                         
     def get_cart_items(self): #user can view current cart items and total
+        cart=[]
         for code in self.cart_items: #every loop is one item code in the cart
             item_n_price=self.cart_items[code] #dict of the item code containing name and price
-            print(  "   CODE       NAME              PRICE")
+            print(  "   CODE       ITEM              PRICE")
             print(f"   {code}    {item_n_price["Name"]} ¦ {item_n_price["Price"]} DHS\n")
-        return f"CART TOTAL {self.CalcTotals()[0]} " #total returned only if called with a variable in main code
-
+            print(f"CART TOTAL {self.CalcTotals()[0]}")
+            cart.append({"code":code,"Item":item_n_price["Name"],"price":item_n_price["Price"]})
+        return { "total":f"CART TOTAL {self.CalcTotals()[0]}","items":cart} #total returned only if called with a variable in main code
 
 
     def CalcTotals(self,discount=0): #dicount is 0 if no argument given when calling.

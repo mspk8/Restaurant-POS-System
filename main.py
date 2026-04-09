@@ -65,7 +65,7 @@ while not exit_status:
 
             #default purpose is to remove items from cart
 
-            print(user_cart.get_cart_items())
+            user_cart.get_cart_items()
             print(" | Enter Item code to remove item from Cart\n | Type 'M' to return to Menu \n | Type 'Done' to continue to checkout or 'Exit' to cancel order")
             while True: # loops until broken
                   cart_choice=input("Enter >>> ")

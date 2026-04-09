@@ -1,4 +1,4 @@
-from fastapi import FastAPI 
+from fastapi import FastAPI,HTTPException
 from functions.sales_functions import *
 from pydantic import BaseModel,field_validator
 from typing import Optional
@@ -33,7 +33,10 @@ def get_menu(category_code: str):
 
 @app.post("/cart/add/{item_code}")
 def add_item(item_code: str):
-    item=cart.add_items_tocart(item_code)
+    try:
+        item=cart.add_items_tocart(item_code)
+    except ItemNotFoundError as e:
+        raise HTTPException(status_code=404,detail=str(e))
     return item,cart.get_cart_items()
 
 
@@ -45,7 +48,7 @@ def delete_item(item_code:str):
 
 @app.get("/cart")
 def view_cart():
-    return cart.cart_items
+    return cart.get_cart_items()
 
 @app.post("/cart/checkout")
 def checkout(request:CheckoutRequest):
@@ -53,8 +56,6 @@ def checkout(request:CheckoutRequest):
     coupon_discount=0  # for initializing 
     if request.coupon and request.coupon in coupon_codes.keys():
         coupon_discount=coupon_codes[request.coupon]
-        message=f"coupon CODE '{request.coupon}' APPLIED | {coupon_discount}% DISCOUNT !! "
-
     cart_total,net_total,net_afterVAT=cart.CalcTotals(coupon_discount)
     print(f"                                YOUR RECIPT")
     print("                            _____________________\n")

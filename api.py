@@ -29,6 +29,8 @@ def get_menu_categories():
 @app.get("/menu/{category_code}")
 def get_menu(category_code: str):
     items = Display_menu(category_code)
+    if items is None:
+        raise HTTPException(status_code=404,detail=f"Category Code {category_code} is invalid")
     return {"category and items": items}  
 
 @app.post("/cart/add/{item_code}")
@@ -42,16 +44,22 @@ def add_item(item_code: str):
 
 @app.delete("/cart/remove/{item_code}")
 def delete_item(item_code:str):
-    cart.Remove_item(item_code)
-    return cart.get_cart_items()
-
-
+    try:
+        removed_item=cart.Remove_item(item_code)
+        return {"message":"Item Removed Successfully",
+                "Removed Item":removed_item,
+                "cart":cart.get_cart_items()}
+    except ItemNotInCartError as e:
+        raise HTTPException(status_code=404,detail=str(e))
+    
 @app.get("/cart")
 def view_cart():
     return cart.get_cart_items()
 
 @app.post("/cart/checkout")
 def checkout(request:CheckoutRequest):
+    if cart.get_cart_items()['items']==[]:
+        raise EmptyCart()
     coupon_codes=load_coupons()
     coupon_discount=0  # for initializing 
     if request.coupon and request.coupon in coupon_codes.keys():
@@ -61,15 +69,15 @@ def checkout(request:CheckoutRequest):
     print("                            _____________________\n")
     cart.get_cart_items()
     return {
-            "SUBTOTAL" : cart_total,
-            "Discount": (coupon_discount/100)*cart_total,
-            "NET FTER DISCOUNT  ":  net_total,
-            "VAT"  : round(0.05*net_total,2),
-            "GRAND TOTAL"  :  round(net_afterVAT,2),
-            "Payment Method": request.payment_method,
-            "message":"~ All prices are exlusive of VAT, \nThank You for Dining with Us !"
-    }
-        
+                "SUBTOTAL" : cart_total,
+                "Discount": (coupon_discount/100)*cart_total,
+                "NET FTER DISCOUNT  ":  net_total,
+                "VAT"  : round(0.05*net_total,2),
+                "GRAND TOTAL"  :  round(net_afterVAT,2),
+                "Payment Method": request.payment_method,
+                "message":"~ All prices are exlusive of VAT, \nThank You for Dining with Us !"
+        }
+
             
             
                     

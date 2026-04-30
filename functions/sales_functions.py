@@ -32,6 +32,12 @@ def category_menu_codes(code):
 
 def Display_menu(code):
     conn,cursor=connect_db()
+    cursor.execute("SELECT cat_name FROM MENU_CATEGORIES_DB WHERE cat_code=?",(code,))
+    category=cursor.fetchone()
+    if category is None:
+        conn.close()
+        return None
+    chosen_category=category["cat_name"]
     cursor.execute("SELECT* FROM menu_db WHERE cat_code=?",(code,))
     items=cursor.fetchall()
     full_menu=[]
@@ -41,8 +47,7 @@ def Display_menu(code):
         print(row)
         full_menu.append(row)
     print("\n~ All prices are exlusive of VAT")
-    cursor.execute("SELECT cat_name FROM MENU_CATEGORIES_DB WHERE cat_code=?",(code,))
-    chosen_category=cursor.fetchone()["cat_name"]
+
     conn.close()
     return chosen_category,full_menu
 
@@ -113,9 +118,11 @@ class Cart: #cart object
             removed=self.cart_items.pop(code) #removes item dictionary from cart
             print(f"{removed["Name"]} REMOVED | CART TOTAL : {self.CalcTotals()[0]}\n")
         except KeyError: #error handling incase user enters code not in cart. 
-            pass #errroe messAGE given in main loop
-        
+            raise ItemNotInCartError(code) #errroe messAGE given in main loop
+        return removed
     def checkout(self):
+        if not self.cart_items:
+            raise EmptyCart()
         coupon_codes=load_coupons()
         coupon_discount=0  # for initializing 
         while True:

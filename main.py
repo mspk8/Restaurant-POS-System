@@ -12,6 +12,7 @@ invalid_msg=False
 
 print(f"\n Welcome {user_name} !\n" )
 user_cart=Cart() #creates user's cart instance
+print(user_cart.get_cart_items())
 while not exit_status:
       #flags
       in_main_menu=True

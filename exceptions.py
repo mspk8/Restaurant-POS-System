@@ -1,15 +1,20 @@
 class POSError(Exception):
     pass
 
+
+class InvalidOption(POSError):
+    def __init__(self, code):
+        self.code=code
+        super().__init__(f" Code :{code} not found in Menu categories")
 class ItemNotFoundError(POSError):
     def __init__(self, code):
         self.code=code
-        super().__init__(f"ITEM Code :{code} not found in Menu")
+        super().__init__(f"ITEM Code: '{code}' not found in Menu")
 
 class ItemNotInCartError(POSError):
     def __init__(self, code):
         self.code=code
-        super().__init__(f"ITEM CODE: {code} not found in Cart")
+        super().__init__(f"ITEM CODE: '{code}' not found in Cart")
 
 
 class EmptyCart(POSError):
